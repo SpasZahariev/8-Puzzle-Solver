@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class BFS {
+public class OptimizedBFS {
 
     private static Node root;
     private static LinkedList<Node> queue;
@@ -24,18 +24,18 @@ public class BFS {
         private Node left;
 
         //optimise redundant moves
-        /*public boolean parentRight;
+        public boolean parentRight;
         public boolean parentLeft;
         public boolean parentUp;
-        public boolean parentDown;*/
+        public boolean parentDown;
 
         public Node() {
             towerBlocks = new ArrayList<>(3);
-            //parentDown = parentUp = parentRight = parentLeft = false;
+            parentDown = parentUp = parentRight = parentLeft = false;
         }
     }
 
-    public BFS (Block rootAgent) {
+    public OptimizedBFS (Block rootAgent) {
         root = new Node();
         root.agent = rootAgent;
         queue = new LinkedList<>();
@@ -49,7 +49,7 @@ public class BFS {
     public void doBFS() {
         queue.add(root);
         while (!isSolution)
-        doBFS(queue.poll());
+            doBFS(queue.poll());
     }
 
     //todo optimise nodes to not go to their parents places
@@ -73,30 +73,30 @@ public class BFS {
         int agentPos = current.agent.getCurrPos();
 
         //is next to wall check
-        if (agentPos % 4 != 0) {
+        if (agentPos % 4 != 0 && !current.parentLeft) {
             current.left = new Node();
-            //current.left.parentRight = true;
+            current.left.parentRight = true;
             makeSwitches(current.left, current, agentPos - 1, agentPos);
             queue.add(current.left);
         }
         //is next to wall check
-        if (agentPos % 4 != 3) {
+        if (agentPos % 4 != 3 && !current.parentRight) {
             current.right = new Node();
-            //current.right.parentLeft = true;
+            current.right.parentLeft = true;
             makeSwitches(current.right, current, agentPos + 1, agentPos);
             queue.add(current.right);
         }
         //is next to wall check
-        if (agentPos < 12) {
+        if (agentPos < 12 && !current.parentUp) {
             current.up = new Node();
-            //current.up.parentDown = true;
+            current.up.parentDown = true;
             makeSwitches(current.up, current, agentPos + 4, agentPos);
             queue.add(current.up);
         }
         //is next to wall check
-        if (agentPos > 3) {
+        if (agentPos > 3 && !current.parentDown) {
             current.down = new Node();
-            //current.down.parentUp = true;
+            current.down.parentUp = true;
             makeSwitches(current.down, current, agentPos - 4, agentPos);
             queue.add(current.down);
         }
