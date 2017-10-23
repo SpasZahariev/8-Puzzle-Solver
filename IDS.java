@@ -1,11 +1,7 @@
-import java.util.ArrayList;
-import java.util.LinkedList;
+public class IDS {
 
-public class BFS {
-
-    private static Node root;
+    /*private static Node root;
     private static LinkedList<Node> queue;
-    private static long nodesPassed;
 
     private static boolean isSolution = false;
 
@@ -25,10 +21,10 @@ public class BFS {
         private Node left;
 
         //optimise redundant moves
-        /*public boolean parentRight;
+        *//*public boolean parentRight;
         public boolean parentLeft;
         public boolean parentUp;
-        public boolean parentDown;*/
+        public boolean parentDown;*//*
 
         public Node() {
             towerBlocks = new ArrayList<>(3);
@@ -36,11 +32,10 @@ public class BFS {
         }
     }
 
-    public BFS (Block rootAgent) {
+    public IDS (Block rootAgent) {
         root = new Node();
         root.agent = rootAgent;
         queue = new LinkedList<>();
-        nodesPassed = 0;
     }
 
     //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)
@@ -48,54 +43,37 @@ public class BFS {
         root.towerBlocks.add(newBlock);
     }
 
-    private boolean checkSolution(Node current) {
-        for (Block i : current.towerBlocks) {
-            if (i.getCurrPos() != i.getGoalPos()) {
-                return false;
-            }
-        }
-        System.out.println("yey mofo nodes Passed: " + nodesPassed);
-        isSolution = true;
-        //<3 lambda
-        current.towerBlocks.forEach(i -> System.out.println(i.getCurrPos()));
-        return true;
-    }
-
     public void doBFS() {
         queue.add(root);
         while (!isSolution)
-        doBFS(queue.poll());
+            doBFS(queue.poll());
     }
 
     //todo optimise nodes to not go to their parents places
     private void doBFS(Node current) {
-        nodesPassed++;
 
-        /*boolean reachedSolution = true;
+        boolean reachedSolution = true;
         for (Block i : current.towerBlocks) {
             if (i.getCurrPos() != i.getGoalPos()) {
                 reachedSolution = false;
                 break;
             }
-        }*/
-        //TODO DELETE LATER
-        /*if (checkSolution(current)) {
-            System.out.println("yey mofo nodes Passed: " + nodesPassed);
+        }
+        if (reachedSolution) {
+            System.out.println("yey mofo");
             isSolution = true;
             //<3 lambda
             current.towerBlocks.forEach(i -> System.out.println(i.getCurrPos()));
             return;
-        }*/
+        }
 
         int agentPos = current.agent.getCurrPos();
 
         //is next to wall check
         if (agentPos % 4 != 0) {
             current.left = new Node();
-            //current.left.parentRight = true;
+           // current.left.parentRight = true;
             makeSwitches(current.left, current, agentPos - 1, agentPos);
-            if(checkSolution(current.left))
-                return;
             queue.add(current.left);
         }
         //is next to wall check
@@ -103,8 +81,6 @@ public class BFS {
             current.right = new Node();
             //current.right.parentLeft = true;
             makeSwitches(current.right, current, agentPos + 1, agentPos);
-            if(checkSolution(current.right))
-                return;
             queue.add(current.right);
         }
         //is next to wall check
@@ -112,17 +88,13 @@ public class BFS {
             current.up = new Node();
             //current.up.parentDown = true;
             makeSwitches(current.up, current, agentPos + 4, agentPos);
-            if(checkSolution(current.up))
-                return;
             queue.add(current.up);
         }
         //is next to wall check
         if (agentPos > 3) {
             current.down = new Node();
-            //current.down.parentUp = true;
+           // current.down.parentUp = true;
             makeSwitches(current.down, current, agentPos - 4, agentPos);
-            if(checkSolution(current.down))
-                return;
             queue.add(current.down);
         }
 
@@ -135,11 +107,12 @@ public class BFS {
 
         for (Block i : parent.towerBlocks) {
             if (i.getCurrPos() == futureAgentPos) {
-                //System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
+                System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
                 child.towerBlocks.add(new Block(currentAgentPos, i.getGoalPos()));
             } else {
                 child.towerBlocks.add(new Block(i.getCurrPos(), i.getGoalPos()));
             }
         }
-    }
+    }*/
 }
+
