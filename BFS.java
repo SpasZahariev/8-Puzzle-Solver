@@ -129,8 +129,9 @@ public class BFS {
         //todo check if reached solution
     }
 
-    //checks and does swaps of blocks and agent
+    //checks for the need to do swaps between blocks and agent and does them
     private void makeSwitches(Node child, Node parent, int futureAgentPos, int currentAgentPos) {
+        //child = new Node();
         child.agent = new Block(futureAgentPos);
 
         for (Block i : parent.towerBlocks) {
@@ -141,5 +142,6 @@ public class BFS {
                 child.towerBlocks.add(new Block(i.getCurrPos(), i.getGoalPos()));
             }
         }
+
     }
 }

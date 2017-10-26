@@ -6,6 +6,7 @@ public class DFS {
 
     private static Node root;
     private static Stack<Node> stack;
+    private static long nodesPassed;
 
     private static boolean isSolution;
 
@@ -41,6 +42,7 @@ public class DFS {
         root = new Node();
         root.agent = rootAgent;
         stack = new Stack<>();
+        nodesPassed = 0;
     }
 
     //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)
@@ -64,43 +66,30 @@ public class DFS {
     }
 
     private void doDFS(Node current) {
+        nodesPassed++;
 
         if (checkSolution(current)) {
-            System.out.println("yey DFS mofo");
+            System.out.println("\nyey DFS mofo\nnodes passed: " + nodesPassed);
             isSolution = true;
             //<3 lambda
-            current.towerBlocks.forEach(i -> System.out.println(i.getCurrPos()));
+            current.towerBlocks.forEach(i -> System.out.println("Final Position is: " + i.getCurrPos()));
             return;
         }
 
         int agentPos = current.agent.getCurrPos();
 
+        //checks for when node is next to borders
         if (agentPos % 4 != 0) {
-            Node temp = new Node();
-            //current.left.parentRight = true;
-            makeSwitches(temp, current, agentPos - 1, agentPos);
-            current.children.add(temp);
+            makeSwitches(current, agentPos - 1, agentPos);
         }
-        //is next to wall check
         if (agentPos % 4 != 3) {
-            Node temp = new Node();
-            //current.right.parentLeft = true;
-            makeSwitches(temp, current, agentPos + 1, agentPos);
-            current.children.add(temp);
+            makeSwitches(current, agentPos + 1, agentPos);
         }
-        //is next to wall check
         if (agentPos < 12) {
-            Node temp = new Node();
-            //current.up.parentDown = true;
-            makeSwitches(temp, current, agentPos + 4, agentPos);
-            current.children.add(temp);
+            makeSwitches(current, agentPos + 4, agentPos);
         }
-        //is next to wall check
         if (agentPos > 3) {
-            Node temp = new Node();
-            //current.down.parentUp = true;
-            makeSwitches(temp, current, agentPos - 4, agentPos);
-            current.children.add(temp);
+            makeSwitches(current, agentPos - 4, agentPos);
         }
 
         //reached leaf in tree (should never happen)
@@ -120,16 +109,19 @@ public class DFS {
     //todo choose random child and do dfs on it
 
 
-    private void makeSwitches(Node child, Node parent, int futureAgentPos, int currentAgentPos) {
+    //sets up board state for child node, does swaps between Agent and Blocks too
+    private void makeSwitches(Node parent, int futureAgentPos, int currentAgentPos) {
+        Node child = new Node();
         child.agent = new Block(futureAgentPos);
 
         for (Block i : parent.towerBlocks) {
             if (i.getCurrPos() == futureAgentPos) {
-                System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
+                //System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
                 child.towerBlocks.add(new Block(currentAgentPos, i.getGoalPos()));
             } else {
                 child.towerBlocks.add(new Block(i.getCurrPos(), i.getGoalPos()));
             }
         }
+        parent.children.add(child);
     }
 }

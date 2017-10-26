@@ -13,38 +13,36 @@ public class PuzzleBoard {
         Block blockB = new Block(1,5);
         Block blockC = new Block(2,1);
         Block agent = new Block(3);
-        BFS nodeBFS = new BFS(agent);
+
         /*OptimizedBFS optBFS = new OptimizedBFS(agent);
         optBFS.insertBlock(blockA);
         optBFS.insertBlock(blockB);
         optBFS.insertBlock(blockC);*/
 
+        /*BFS nodeBFS = new BFS(agent);
         nodeBFS.insertBlock(blockA);
         nodeBFS.insertBlock(blockB);
-        nodeBFS.insertBlock(blockC);
+        nodeBFS.insertBlock(blockC);*/
+
         /*DFS nodeDFS = new DFS(agent);
         nodeDFS.insertBlock(blockA);
         nodeDFS.insertBlock(blockB);
         nodeDFS.insertBlock(blockC);*/
+
+        IDS nodeIDS = new IDS(agent);
+        nodeIDS.insertBlock(blockA);
+        nodeIDS.insertBlock(blockB);
+        nodeIDS.insertBlock(blockC);
+
         System.out.println("AT START: " + blockA.getCurrPos() + " " + blockB.getCurrPos() + " " + blockC.getCurrPos() + " " + agent.getCurrPos());
+
 //        optBFS.doBFS();
-        nodeBFS.doBFS();
+
+//        nodeBFS.doBFS();
+
 //        nodeDFS.doDFS();
-    }
 
-    /*public Block getBlockA() {
-        return blockA;
-    }
+        nodeIDS.doIDS();
 
-    public Block getBlockB() {
-        return blockB;
     }
-
-    public Block getBlockC() {
-        return blockC;
-    }
-
-    public Block getAgent() {
-        return agent;
-    }*/
 }

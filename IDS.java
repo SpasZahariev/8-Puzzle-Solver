@@ -1,41 +1,37 @@
+import java.util.ArrayList;
+import java.util.Stack;
+
 public class IDS {
 
-    /*private static Node root;
-    private static LinkedList<Node> queue;
+    //TODO should i try to make global vars as few as possible?
+    private static Node root;
+    private static Stack<Node> stack;
+    private static int maxLevel;
+    private static long nodesPassed;
 
-    private static boolean isSolution = false;
+    private static boolean isSolution;
 
     private class Node {
 
         private Block agent;
-        //private Block blockA;
-        //private Block blockB;
-        //private Block blockC;
-
+        private long level;
         private ArrayList<Block> towerBlocks;
-
-
-        private Node up;
-        private Node right;
-        private Node down;
-        private Node left;
-
-        //optimise redundant moves
-        *//*public boolean parentRight;
-        public boolean parentLeft;
-        public boolean parentUp;
-        public boolean parentDown;*//*
+        private Stack<Node> children;
+        private boolean givenChildren;
+        
 
         public Node() {
             towerBlocks = new ArrayList<>(3);
-            //parentDown = parentUp = parentRight = parentLeft = false;
+            children = new Stack<>();
         }
     }
 
-    public IDS (Block rootAgent) {
+    public IDS(Block rootAgent) {
         root = new Node();
         root.agent = rootAgent;
-        queue = new LinkedList<>();
+        stack = new Stack<>();
+        root.level = 0;
+        nodesPassed = 0;
     }
 
     //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)
@@ -43,76 +39,101 @@ public class IDS {
         root.towerBlocks.add(newBlock);
     }
 
-    public void doBFS() {
-        queue.add(root);
-        while (!isSolution)
-            doBFS(queue.poll());
-    }
 
-    //todo optimise nodes to not go to their parents places
-    private void doBFS(Node current) {
-
-        boolean reachedSolution = true;
+    private boolean checkSolution(Node current) {
         for (Block i : current.towerBlocks) {
             if (i.getCurrPos() != i.getGoalPos()) {
-                reachedSolution = false;
-                break;
+                return false;
             }
         }
-        if (reachedSolution) {
-            System.out.println("yey mofo");
+        return true;
+    }
+
+    //todo iteration
+    public void doIDS() {
+        maxLevel = 1;
+        stack.add(root);
+        while (!isSolution) {
+            doIDS(stack.peek());
+
+            if (stack.empty()) {
+                root.givenChildren = false;
+                stack.add(root);
+                maxLevel++;
+                System.out.println("Max Level: " + maxLevel);
+            }
+        }
+    }
+
+    //self explanatory
+    private void doIDS(Node current) {
+        nodesPassed++;
+        //System.out.println(current.agent.getCurrPos());
+        //method called on empty stack;
+        //todo might not need this
+//        if(current == null)
+//            return;
+
+        //if current has been given children than it has gone through this check before
+        if (!current.givenChildren && checkSolution(current)) {
+            System.out.println("IDS completed!" + "\nNodesPassed: " + nodesPassed);
             isSolution = true;
             //<3 lambda
-            current.towerBlocks.forEach(i -> System.out.println(i.getCurrPos()));
+            current.towerBlocks.forEach(i -> System.out.println("Final Position: " + i.getCurrPos()));
             return;
         }
 
         int agentPos = current.agent.getCurrPos();
 
-        //is next to wall check
-        if (agentPos % 4 != 0) {
-            current.left = new Node();
-           // current.left.parentRight = true;
-            makeSwitches(current.left, current, agentPos - 1, agentPos);
-            queue.add(current.left);
-        }
-        //is next to wall check
-        if (agentPos % 4 != 3) {
-            current.right = new Node();
-            //current.right.parentLeft = true;
-            makeSwitches(current.right, current, agentPos + 1, agentPos);
-            queue.add(current.right);
-        }
-        //is next to wall check
-        if (agentPos < 12) {
-            current.up = new Node();
-            //current.up.parentDown = true;
-            makeSwitches(current.up, current, agentPos + 4, agentPos);
-            queue.add(current.up);
-        }
-        //is next to wall check
-        if (agentPos > 3) {
-            current.down = new Node();
-           // current.down.parentUp = true;
-            makeSwitches(current.down, current, agentPos - 4, agentPos);
-            queue.add(current.down);
+        if (current.level == maxLevel) {
+            stack.pop();
+            return;
+        } else if(current.level < maxLevel && !current.givenChildren) {
+            current.givenChildren = true;
+            //checks for when node is next to borders
+            if (agentPos % 4 != 0) {
+                makeSwitches(current, agentPos - 1, agentPos);
+            }
+            if (agentPos % 4 != 3) {
+                makeSwitches(current, agentPos + 1, agentPos);
+            }
+            if (agentPos < 12) {
+                makeSwitches(current, agentPos + 4, agentPos);
+            }
+            if (agentPos > 3) {
+                makeSwitches(current, agentPos - 4, agentPos);
+            }
         }
 
-        //todo check if reached solution
+        //all of this node's children have been looked at
+        if(current.children.isEmpty()/* && current.givenChildren*/) {
+            stack.pop();
+            //doIDS(stack.peek());
+            return;
+        }
+
+        //Collections.shuffle(current.children);
+        Node next = current.children.pop();
+        next.level = current.level + 1;
+        //add one random child -> add one of its children -
+        stack.add(next);
     }
 
-    //checks and does swaps of blocks and agent
-    private void makeSwitches(Node child, Node parent, int futureAgentPos, int currentAgentPos) {
+    //sets up board state for child node, does swaps between Agent and Blocks too
+    private void makeSwitches(Node parent, int futureAgentPos, int currentAgentPos) {
+        Node child = new Node();
+        child.level = parent.level + 1;
         child.agent = new Block(futureAgentPos);
 
         for (Block i : parent.towerBlocks) {
             if (i.getCurrPos() == futureAgentPos) {
-                System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
+                //System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
                 child.towerBlocks.add(new Block(currentAgentPos, i.getGoalPos()));
             } else {
                 child.towerBlocks.add(new Block(i.getCurrPos(), i.getGoalPos()));
             }
         }
-    }*/
+        parent.children.add(child);
+    }
 }
 
