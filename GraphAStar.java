@@ -1,31 +1,34 @@
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.PriorityQueue;
+        import java.util.Comparator;
+        import java.util.HashSet;
+        import java.util.PriorityQueue;
 
-public class GraphAStar {
+public class GraphAStar extends SearchAlg implements Searchable<GraphAStar.Node>{
 
     private Node root;
     private static int lengthAcross;
     private static int area;
     private static PriorityQueue<Node> openList;
     private static ArrayList<Node> closedList;
-    private static long nodesPassed;
+//    private static HashSet<Integer> obstacles;
+    //private static ArrayList<Node> closedList;
+//    private static long nodesPassed;
+//    private static int solutionDepth;
 
     private static boolean isSolution;
 
-    private class Node {
+    protected class Node extends BasicNode {
 
-        private Block agent;
-        private Node parent;
+        //        private Block agent;
+//        private Node parent;
         private int moveCost;
         private int manhattan;
         //private int weight;
-        private ArrayList<Block> towerBlocks;
+//        private ArrayList<Block> towerBlocks;
         //private ArrayList<Node> children;
 
-        public Node(Block agent) {
-            this.agent = agent;
+        public Node() {
+//            this.agent = agent;
             towerBlocks = new ArrayList<>();
             //children = new ArrayList<>(2);
         }
@@ -56,14 +59,17 @@ public class GraphAStar {
     }
 
     public GraphAStar(PuzzleBoard newBoard) {
-        root = new Node(newBoard.getAgent());
+        super(newBoard.getObstacles());
+        root = new Node();
+        root.agent = newBoard.getAgent();
         root.towerBlocks = newBoard.getBlocks();
         lengthAcross = newBoard.getLengthAcross();
         area = lengthAcross * lengthAcross;
+//        super.obstacles = newBoard.getObstacles();
 
         openList = new PriorityQueue<>(new WeightComparator());
         closedList = new ArrayList<>();
-        
+
         nodesPassed = 0;
         isSolution = false;
     }
@@ -76,7 +82,7 @@ public class GraphAStar {
         isSolution = false;
     }*/
 
-    public void doAStar() {
+    public void startSearch() {
         root.moveCost = 0;
         root.manhattan = heuristicSum(root.towerBlocks);
         openList.add(root);
@@ -84,20 +90,27 @@ public class GraphAStar {
         while (!openList.isEmpty() && !isSolution) {
             doAStar(openList.poll());
         }
-        Node goal = null;
+        BasicNode goal = null;
         for (Node i : openList) {
             if (i.manhattan == 0) {
                 goal = i;
                 break;
             }
         }
+        traceRouteFrom(goal);
+        //TODO cleanup code below traceRoute
         //printing solution
-        System.out.println("nodes Passed: " + nodesPassed);
+//        System.out.println("nodes Passed: " + nodesPassed);
         printAnswer(goal);
+//        int count = 0;
         while (goal.parent != null) {
             printAnswer(goal.parent);
             goal = goal.parent;
+//            count++;
         }
+//        solutionDepth = count;
+//        updateTextFields(String.valueOf(nodesPassed), String.valueOf(solutionDepth));
+//        System.err.println("SOLUTION DEPTH: " + solutionDepth);
     }
 
     private void doAStar(Node current) {
@@ -107,17 +120,17 @@ public class GraphAStar {
 
         //checks for when agent is next to borders
         //prevents moving out of the bounds of the board
-        if (agentPos % lengthAcross != 0) {
-            makeSwitches(current, agentPos - 1, agentPos);
+        if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
+            makeSwitches(new Node(), current, agentPos - 1, agentPos);
         }
-        if (agentPos % lengthAcross != (lengthAcross - 1)) {
-            makeSwitches(current, agentPos + 1, agentPos);
+        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+            makeSwitches(new Node(), current, agentPos + 1, agentPos);
         }
-        if (agentPos < (area - lengthAcross)) {
-            makeSwitches(current, agentPos + lengthAcross, agentPos);
+        if (agentPos < (area - lengthAcross ) && noObstacle(agentPos + lengthAcross)) {
+            makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
         }
-        if (agentPos > (lengthAcross - 1)) {
-            makeSwitches(current, agentPos - lengthAcross, agentPos);
+        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
+            makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
         }
         closedList.add(current);
     }
@@ -157,20 +170,15 @@ public class GraphAStar {
         root.towerBlocks.add(newBlock);
     }*/
 
-    /*private boolean checkSolution(Node current) {
-        for (Block i : current.towerBlocks) {
-            if (i.getCurrPos() != i.getGoalPos()) {
-                return false;
-            }
-        }
-        return true;
-    }*/
+    public boolean checkSolution(Node current) {
+        return current.manhattan == 0;
+    }
 
-    private void makeSwitches(Node parent, int futureAgentPos, int currentAgentPos) {
+    public void makeSwitches(Node child, Node parent, int futureAgentPos, int currentAgentPos) {
         if (isSolution)
             return;
         boolean recalculate = false;
-        Node child = new Node(new Block(futureAgentPos));
+        child.agent = new Block(futureAgentPos);
         child.parent = parent;
         child.moveCost = parent.moveCost + 1;
 
@@ -191,7 +199,7 @@ public class GraphAStar {
             child.manhattan = parent.manhattan;
         }
         //System.out.println("child manhattan " + child.manhattan);
-        if(child.manhattan == 0) {
+        if(checkSolution(child)) {
             //child.towerBlocks.forEach(i -> System.err.println("ha? " + i.getCurrPos()));
             //System.out.println("Manhat dist: " + heuristicSum(child.towerBlocks));
             isSolution = true;
@@ -234,13 +242,13 @@ public class GraphAStar {
         return false;
     }
 
-    private void printAnswer (Node state) {
+    private void printAnswer (BasicNode state) {
         System.out.println("------------------------------");
         for (Block i : state.towerBlocks){
             System.out.println("Block Position: " + i.getCurrPos());
         }
         System.out.print("  AGENT: " + state.agent.getCurrPos() + "\n");
-        System.out.println("Heuristic: " + state.manhattan);
+//        System.out.println("Heuristic: " + state.manhattan);
         //state.towerBlocks.forEach(i -> System.out.println("Block Position: " + i.getCurrPos() + " Goal Pos??? " + i.getGoalPos()));
         System.out.println("------------------------------");
     }

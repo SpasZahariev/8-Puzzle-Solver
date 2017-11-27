@@ -10,7 +10,6 @@ public class BoardFrame extends JFrame {
     private JPanel gridContainer;
     private PuzzleBoard board;
     private JLabel[] tiles;
-    private static String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star"};
 
     private JTextField agentStartPos;
     private Button inputAgentPos;
@@ -33,6 +32,7 @@ public class BoardFrame extends JFrame {
 
         setLayout(new BorderLayout());
         gridContainer = new JPanel();
+        gridContainer.setBackground(new Color(70,90,70));
         //gridContainer.setBackground(Color.CYAN);
         JPanel optionContainer = new JPanel();
         optionContainer.setLayout(new BoxLayout(optionContainer, BoxLayout.Y_AXIS));
@@ -100,6 +100,7 @@ public class BoardFrame extends JFrame {
         nodesPanel.add(nodesPassed);
         optionContainer.add(nodesPanel);
 
+        String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star", "Graph Search A*"};
         JPanel solutionPanel = new JPanel();
         JComboBox<String> typePicker = new JComboBox<>(searchTypes);
         solutionPanel.add(typePicker);
@@ -285,6 +286,14 @@ public class BoardFrame extends JFrame {
             case "A Star":
                 algorithm = new AStar(board);
                 break;
+
+            case "Graph Search A*":
+                algorithm = new GraphAStar(board);
+                break;
+
+            default:
+                System.err.println("Invalid algorithm input. How did you manage to do that?");
+                return;
 
         }
         algorithm.setTextFields(nodesPassed, solutionDepth);
