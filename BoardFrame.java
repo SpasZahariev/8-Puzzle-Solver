@@ -2,13 +2,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Stack;
 
 public class BoardFrame extends JFrame {
 
-   private JPanel gridContainer;
+    private JPanel gridContainer;
     private PuzzleBoard board;
     private JLabel[] tiles;
-
+    private static String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star"};
 
     private JTextField agentStartPos;
     private Button inputAgentPos;
@@ -85,7 +87,6 @@ public class BoardFrame extends JFrame {
         optionContainer.add(obstaclePanel);
 
 
-
         JPanel depthPanel = new JPanel();
         depthPanel.add(new JLabel("Solution Depth:"));
         solutionDepth = new JTextField("No Answer");
@@ -99,7 +100,6 @@ public class BoardFrame extends JFrame {
         nodesPanel.add(nodesPassed);
         optionContainer.add(nodesPanel);
 
-        String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star"};
         JPanel solutionPanel = new JPanel();
         JComboBox<String> typePicker = new JComboBox<>(searchTypes);
         solutionPanel.add(typePicker);
@@ -199,7 +199,7 @@ public class BoardFrame extends JFrame {
                 board.insertBlocks(new Block(startPos, goalPos));
                 tiles[startPos].setBackground(Color.black);
                 tiles[startPos].setForeground(Color.lightGray);
-                tiles[goalPos].setBorder(BorderFactory.createLineBorder(Color.black, 3));
+                tiles[goalPos].setBorder(BorderFactory.createLineBorder(Color.GRAY, 3));
                 blockAdded = true;
                 unlockSolution();
             } else {
@@ -287,15 +287,81 @@ public class BoardFrame extends JFrame {
                 break;
 
         }
-        if (algorithm != null) {
-            SearchAlg finalAlgorithm = algorithm;
-            finalAlgorithm.setTextFields(nodesPassed, solutionDepth);
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    finalAlgorithm.startSearch();
+        algorithm.setTextFields(nodesPassed, solutionDepth);
+        PathWorker worker = new PathWorker(algorithm);
+        System.err.println("STARTEDDD");
+        worker.execute();
+    }
+
+    private class PathWorker extends SwingWorker<Void, Void> {
+
+        private SearchAlg chosenAlg;
+        private Stack<Integer[]> solutionRoute;
+        private HashSet<Integer> obstacles;
+
+
+        public PathWorker(SearchAlg finalAlgorithm) {
+            super();
+            chosenAlg = finalAlgorithm;
+        }
+
+        //does the big calculation in another thread... not in the EDT!
+        @Override
+        protected Void doInBackground() throws Exception {
+            //finds optimal path
+            chosenAlg.startSearch();
+            //get optimal path to solution
+            solutionRoute = chosenAlg.getSolutionRoute();
+            obstacles = chosenAlg.getObstacles();
+
+            Integer[] startState = solutionRoute.peek();
+            //visualise the blocks moving
+            int sleepTime = 20000 / solutionRoute.size();
+            if (sleepTime > 1000)
+                sleepTime = 1000;
+            while(!solutionRoute.isEmpty()) {
+                process();
+                Thread.sleep(sleepTime);
+            }
+            Thread.sleep(500);
+            //resetting board colors
+            solutionRoute.push(startState);
+            process();
+            return null;
+        }
+
+        //recolours the tiles to simulate the solution
+        //scheduled publications to the EDT that should not cause errors
+//        @Override
+        protected void process() {
+            Integer[] movableBlocks = solutionRoute.pop();
+            for(int i = 0; i < tiles.length; i++) {
+
+                boolean match = false;
+                //check if tile is occupied by the moved agent
+                if(i == movableBlocks[0]) {
+                    tiles[i].setBackground(new Color(0,100,0));
+                    continue;
                 }
-            });
+                //check if tile is occupied by a block
+                for (int j = 1; j < movableBlocks.length; j++) {
+                    if (i == movableBlocks[j]) {
+                        tiles[i].setBackground(Color.black);
+                        tiles[i].setForeground(Color.gray);
+                        match = true;
+                        break;
+                    }
+                }
+                //check if tile is occupied by an obstacle
+                if(obstacles.contains(i)) {
+                    tiles[i].setBackground(Color.red);
+                    continue;
+                }
+                if(!match) {
+                    tiles[i].setBackground(Color.lightGray);
+                    tiles[i].setForeground(Color.black);
+                }
+            }
         }
 
     }

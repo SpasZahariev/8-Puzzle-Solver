@@ -53,6 +53,7 @@ public class IDS extends SearchAlg implements Searchable<IDS.Node>{
 //        super.obstacles = newBoard.getObstacles();
         lengthAcross = newBoard.getLengthAcross();
         boardArea = lengthAcross * lengthAcross;
+        isSolution = false;
     }
 
     //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)

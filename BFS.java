@@ -12,7 +12,7 @@ public class BFS extends SearchAlg implements Searchable<BFS.Node>{
 //    private static HashSet<Integer> obstacles;
 //    private static long nodesPassed;
 
-    private static boolean isSolution = false;
+    private static boolean isSolution;
 
     protected class Node extends BasicNode{
 
@@ -59,6 +59,7 @@ public class BFS extends SearchAlg implements Searchable<BFS.Node>{
 //        super.obstacles = newBoard.getObstacles();
         nodesPassed = 0;
         queue = new LinkedList<>();
+        isSolution = false;
     }
 
     //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)

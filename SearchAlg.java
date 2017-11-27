@@ -26,6 +26,14 @@ public abstract class SearchAlg {
         protected ArrayList<Block> towerBlocks;
     }
 
+    public Stack<Integer[]> getSolutionRoute() {
+        return solutionRoute;
+    }
+
+    public HashSet<Integer> getObstacles() {
+        return obstacles;
+    }
+
     //records the optimal route to the solution
     protected void traceRouteFrom(BasicNode node) {
         //number of blocks + agent is the same throughout the whole solution

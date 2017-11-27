@@ -43,6 +43,15 @@ public class PuzzleBoard {
         return obstacles;
     }
 
+    /*//return a copy of to be able to change the values freely
+    public PuzzleBoard getCopy() {
+        PuzzleBoard copy = new PuzzleBoard(lengthAcross);
+        copy.setAgent(new Block(agent.getCurrPos()));
+        blocks.forEach(i -> copy.insertBlocks(new Block(i.getCurrPos(), i.getGoalPos())));
+        obstacles.forEach(copy::insertObstacle);
+        return copy;
+    }*/
+
     //private static int[][] grid;
     /*private static Block blockA;
     private static Block blockB;

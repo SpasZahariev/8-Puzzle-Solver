@@ -59,6 +59,7 @@ public class DFS extends SearchAlg implements Searchable<DFS.Node>{
         nodesPassed = 0;
         lengthAcross = newBoard.getLengthAcross();
         area = lengthAcross * lengthAcross;
+        isSolution = false;
 //        super.obstacles = newBoard.getObstacles();
     }
 
