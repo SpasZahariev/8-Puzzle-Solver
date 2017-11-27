@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class OptimizedBFS {
+//every node remembers the direction of its parent => does not need to check it
+//one less check done for each node
+public class GraphBFS {
 
     private static Node root;
     private static LinkedList<Node> queue;
@@ -35,7 +37,7 @@ public class OptimizedBFS {
         }
     }
 
-    public OptimizedBFS (Block rootAgent) {
+    public GraphBFS(Block rootAgent) {
         root = new Node();
         root.agent = rootAgent;
         queue = new LinkedList<>();

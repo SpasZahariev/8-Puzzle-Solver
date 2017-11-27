@@ -1,46 +1,67 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Stack;
 
-public class IDS {
+public class IDS extends SearchAlg implements Searchable<IDS.Node>{
 
     //TODO should i try to make global vars as few as possible?
     private static Node root;
     private static Stack<Node> stack;
     private static int maxLevel;
-    private static long nodesPassed;
+
+    private static int lengthAcross;
+    private static int boardArea;
+//    private static HashSet<Integer> obstacles;
+//    private static long nodesPassed;
 
     private static boolean isSolution;
 
-    private class Node {
+    protected class Node extends BasicNode{
 
-        private Block agent;
+//        private Block agent;
         private long level;
-        private ArrayList<Block> towerBlocks;
+//        private ArrayList<Block> towerBlocks;
         private Stack<Node> children;
         private boolean givenChildren;
+//        private Node parent;
         
 
         public Node() {
-            towerBlocks = new ArrayList<>(3);
+            towerBlocks = new ArrayList<>();
             children = new Stack<>();
         }
     }
 
-    public IDS(Block rootAgent) {
+    /*public IDS(Block rootAgent) {
         root = new Node();
         root.agent = rootAgent;
         stack = new Stack<>();
         root.level = 0;
         nodesPassed = 0;
+    }*/
+
+    public IDS(PuzzleBoard newBoard) {
+        super(newBoard.getObstacles());
+        root = new Node();
+        root.agent = newBoard.getAgent();
+        root.towerBlocks = newBoard.getBlocks();
+        root.level = 0;
+
+
+        stack = new Stack<>();
+        nodesPassed = 0;
+//        super.obstacles = newBoard.getObstacles();
+        lengthAcross = newBoard.getLengthAcross();
+        boardArea = lengthAcross * lengthAcross;
     }
 
     //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)
-    public void insertBlock(Block newBlock) {
+    /*public void insertBlock(Block newBlock) {
         root.towerBlocks.add(newBlock);
-    }
+    }*/
 
 
-    private boolean checkSolution(Node current) {
+    public boolean checkSolution(Node current) {
         for (Block i : current.towerBlocks) {
             if (i.getCurrPos() != i.getGoalPos()) {
                 return false;
@@ -50,7 +71,7 @@ public class IDS {
     }
 
     //todo iteration
-    public void doIDS() {
+    public void startSearch() {
         maxLevel = 1;
         stack.add(root);
         while (!isSolution) {
@@ -60,7 +81,7 @@ public class IDS {
                 root.givenChildren = false;
                 stack.add(root);
                 maxLevel++;
-                System.out.println("Max Level: " + maxLevel);
+                //System.out.println("Max Level: " + maxLevel);
             }
         }
     }
@@ -78,8 +99,14 @@ public class IDS {
         if (!current.givenChildren && checkSolution(current)) {
             System.out.println("IDS completed!" + "\nNodesPassed: " + nodesPassed);
             isSolution = true;
+            //TODO cleanUp code after trace route
+            traceRouteFrom(current);
             //<3 lambda
-            current.towerBlocks.forEach(i -> System.out.println("Final Position: " + i.getCurrPos()));
+            /*while (current != null) {
+                current.towerBlocks.forEach(i -> System.out.println("Final Position: " + i.getCurrPos()));
+                System.out.println("   Agent: " + current.agent.getCurrPos() + "\n");
+                current = current.parent;
+            }*/
             return;
         }
 
@@ -91,17 +118,17 @@ public class IDS {
         } else if(current.level < maxLevel && !current.givenChildren) {
             current.givenChildren = true;
             //checks for when node is next to borders
-            if (agentPos % 4 != 0) {
-                makeSwitches(current, agentPos - 1, agentPos);
+            if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
+                makeSwitches(new Node(), current, agentPos - 1, agentPos);
             }
-            if (agentPos % 4 != 3) {
-                makeSwitches(current, agentPos + 1, agentPos);
+            if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+                makeSwitches(new Node(), current, agentPos + 1, agentPos);
             }
-            if (agentPos < 12) {
-                makeSwitches(current, agentPos + 4, agentPos);
+            if (agentPos < (boardArea - lengthAcross) && noObstacle(agentPos + lengthAcross)) {
+                makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
             }
-            if (agentPos > 3) {
-                makeSwitches(current, agentPos - 4, agentPos);
+            if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
+                makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
             }
         }
 
@@ -120,8 +147,7 @@ public class IDS {
     }
 
     //sets up board state for child node, does swaps between Agent and Blocks too
-    private void makeSwitches(Node parent, int futureAgentPos, int currentAgentPos) {
-        Node child = new Node();
+    public void makeSwitches(Node child, Node parent, int futureAgentPos, int currentAgentPos) {
         child.level = parent.level + 1;
         child.agent = new Block(futureAgentPos);
 
@@ -134,6 +160,7 @@ public class IDS {
             }
         }
         parent.children.add(child);
+        child.parent = parent;
     }
 }
 

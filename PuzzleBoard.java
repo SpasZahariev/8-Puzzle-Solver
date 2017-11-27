@@ -1,22 +1,48 @@
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class PuzzleBoard {
-    private static int sideSize;
-    private static int boardSize;
+    private static int lengthAcross;
     private Block agent;
     private ArrayList<Block> blocks;
+    private HashSet<Integer> obstacles;
 
 
-    private PuzzleBoard (int width, Block agent) {
-        sideSize = width;
-        boardSize = sideSize * sideSize;
-        this.agent = agent;
+    public PuzzleBoard (int length) {
+        lengthAcross = length;
         blocks = new ArrayList<>();
+        obstacles = new HashSet<>();
     }
 
-    private void insertBlocks(Block newBlock) {
+    public void setAgent (Block agent) {
+        this.agent = agent;
+    }
+
+    public void insertBlocks(Block newBlock) {
         blocks.add(newBlock);
     }
+
+    public void insertObstacle (int obst) {
+        obstacles.add(obst);
+    }
+
+    public int getLengthAcross() {
+        return lengthAcross;
+    }
+
+    public Block getAgent() {
+        return agent;
+    }
+
+    public ArrayList<Block> getBlocks() {
+        return blocks;
+    }
+
+    public HashSet<Integer> getObstacles() {
+        return obstacles;
+    }
+
     //private static int[][] grid;
     /*private static Block blockA;
     private static Block blockB;
@@ -26,20 +52,22 @@ public class PuzzleBoard {
     //constructor for default 4x4 A,B,C grid
     public static void main(String args[]){
 
-        Block blockA = new Block(0,9);
-        Block blockB = new Block(1,5);
-        Block blockC = new Block(2,1);
-        Block agent = new Block(3);
+        Block blockA = new Block(12,5);
+        Block blockB = new Block(13,9);
+        Block blockC = new Block(14,13);
+        //Block blockD = new Block(3,1);
+        Block agent = new Block(15);
+        int size = 4;
 
-        PuzzleBoard startBoard = new PuzzleBoard(4, agent);
+//        int obst15 = 10;
+
+        PuzzleBoard startBoard = new PuzzleBoard(size);
+        startBoard.setAgent(agent);
         startBoard.insertBlocks(blockA);
         startBoard.insertBlocks(blockB);
         startBoard.insertBlocks(blockC);
-
-        /*OptimizedBFS optBFS = new OptimizedBFS(agent);
-        optBFS.insertBlock(blockA);
-        optBFS.insertBlock(blockB);
-        optBFS.insertBlock(blockC);*/
+//        startBoard.addObstacle(obst15);
+        //startBoard.insertBlocks(blockD);
 
         /*BFS nodeBFS = new BFS(agent);
         nodeBFS.insertBlock(blockA);
@@ -56,22 +84,29 @@ public class PuzzleBoard {
         nodeIDS.insertBlock(blockB);
         nodeIDS.insertBlock(blockC);*/
 
-        AStar nodeAStar = new AStar(agent);
-        nodeAStar.insertBlock(blockA);
-        nodeAStar.insertBlock(blockB);
-        nodeAStar.insertBlock(blockC);
+        SwingUtilities.invokeLater(() -> {
+            BoardFrame gui = new BoardFrame();
+            gui.setUp();
+        });
+
+
+//        AStar aStarSolution = new AStar(startBoard);
+
+//        BFS bfsSolution = new BFS(startBoard);
+
+//        IDS idsSolution = new IDS(startBoard);
+
+//        DFS dfsSolution = new DFS(startBoard);
 
         System.out.println("AT START: " + blockA.getCurrPos() + " " + blockB.getCurrPos() + " " + blockC.getCurrPos() + " " + agent.getCurrPos());
 
-//        optBFS.doBFS();
+//        aStarSolution.startSearch();
 
-//        nodeBFS.doBFS();
+//        bfsSolution.startSearch();
 
-//        nodeDFS.doDFS();
+//        idsSolution.startSearch();
 
-//        nodeIDS.doIDS();
-
-        nodeAStar.doAStar();
+//        dfsSolution.startSearch();
 
     }
 }
