@@ -28,13 +28,7 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node> {
     private class WeightComparator implements Comparator<Node> {
         @Override
         public int compare(Node x, Node y) {
-            if (x.getWeight() < y.getWeight()) {
-                return -1;
-            }
-            if (x.getWeight() > y.getWeight()) {
-                return 1;
-            }
-            return 0;
+            return Integer.compare(x.getWeight(), y.getWeight());
         }
     }
 
@@ -78,17 +72,21 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node> {
 
         //checks for when agent is next to borders
         //prevents moving out of the bounds of the board or into obstacles
+        //up
+        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
+            makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
+        }
+        //left
         if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
             makeSwitches(new Node(), current, agentPos - 1, agentPos);
         }
-        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
-            makeSwitches(new Node(), current, agentPos + 1, agentPos);
-        }
+        //down
         if (agentPos < (area - lengthAcross) && noObstacle(agentPos + lengthAcross)) {
             makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
         }
-        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
-            makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
+        //right
+        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+            makeSwitches(new Node(), current, agentPos + 1, agentPos);
         }
     }
 
@@ -153,39 +151,6 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node> {
             openList.add(child);
             return;
         }
-
-        if (isBestValue(child, openList))
             openList.add(child);
-    }
-
-    //if the same node exists in the open or closed list WITH a better weight, skip this one
-    //we can search the same point a few times but only if it is more promising than the last time
-    //check if node position is already in openList or closedList with a smaller weight
-    private boolean isBestValue(Node newNode, Iterable<Node> list) {
-        for (Node i : list) {
-            if (sameBlockPositions(newNode, i) && newNode.getWeight() > i.getWeight())
-                return false;
-        }
-        return true;
-    }
-
-    //check if agents and blocks are in same places in both nodes
-    //if yes the board configuration in both nodes is the same
-    private boolean sameBlockPositions(Node nodeA, Node nodeB) {
-        if (nodeA.agent.getCurrPos() == nodeB.agent.getCurrPos()) {
-            for (Block i : nodeA.towerBlocks) {
-                boolean hasBlock = false;
-                for (Block j : nodeB.towerBlocks) {
-                    if (j.getCurrPos() == i.getCurrPos()) {
-                        hasBlock = true;
-                        break;
-                    }
-                }
-                if (!hasBlock)
-                    return false;
-            }
-            return true;
-        }
-        return false;
     }
 }

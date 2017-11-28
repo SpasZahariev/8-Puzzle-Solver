@@ -62,19 +62,22 @@ public class DFS extends SearchAlg implements Searchable<DFS.Node> {
         int agentPos = current.agent.getCurrPos();
 
         //checks for when node is next to borders or an obstacle
-        if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
-            makeSwitches(new Node(), current, agentPos - 1, agentPos);
-        }
-        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
-            makeSwitches(new Node(), current, agentPos + 1, agentPos);
-        }
-        if (agentPos < area - lengthAcross && noObstacle(agentPos + lengthAcross)) {
-            makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
-        }
+        //up
         if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
             makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
         }
-
+        //left
+        if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
+            makeSwitches(new Node(), current, agentPos - 1, agentPos);
+        }
+        //down
+        if (agentPos < area - lengthAcross && noObstacle(agentPos + lengthAcross)) {
+            makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
+        }
+        //right
+        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+            makeSwitches(new Node(), current, agentPos + 1, agentPos);
+        }
         //reached leaf in tree (should never happen with this algorithm) - tree is infinite
         //in a tree with leaf nodes, algorithm would backtrack one level and then expand other branches
         if (current.children.isEmpty()) {

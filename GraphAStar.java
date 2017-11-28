@@ -79,17 +79,21 @@ public class GraphAStar extends SearchAlg implements Searchable<GraphAStar.Node>
 
         //checks for when agent is next to borders or obstacles
         //prevents moving out of the bounds of the board
+        //up
+        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
+            makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
+        }
+        //left
         if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
             makeSwitches(new Node(), current, agentPos - 1, agentPos);
         }
-        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
-            makeSwitches(new Node(), current, agentPos + 1, agentPos);
-        }
+        //down
         if (agentPos < (area - lengthAcross) && noObstacle(agentPos + lengthAcross)) {
             makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
         }
-        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
-            makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
+        //right
+        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+            makeSwitches(new Node(), current, agentPos + 1, agentPos);
         }
         closedList.add(current);
     }

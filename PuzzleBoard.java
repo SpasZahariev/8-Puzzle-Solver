@@ -1,7 +1,15 @@
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-
+/**
+GUI --help
+ Board Size: will take an input n and make an n*n board. It can be re-sized any number of times
+ Set agent position: will take input which is a position from the board and make it the agent start position
+ Set blocks: takes 2 inputs; start position and goal position. Any number of blocks can be added
+ Set obstacles: (optional) adds obstacles for the agent that can not be passed through. Any number of obstacles can be added
+ Find solution: choose which algorithm you want to use to solve the problem.
+                Unlocks only when there is an agent on the board and at least one movable block
+*/
 public class PuzzleBoard {
     private static int lengthAcross;
     private Block agent;

@@ -55,8 +55,6 @@ public abstract class SearchAlg {
             solutionDepth++;
             node = node.parent;
         }
-        System.err.println("NODES PASSED: " + nodesPassed);
-        System.err.println("Solution Depth: " + solutionDepth);
         updateTextFields(String.valueOf(nodesPassed), String.valueOf(solutionDepth));
     }
 

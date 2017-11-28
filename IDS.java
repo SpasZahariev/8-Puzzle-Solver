@@ -84,17 +84,21 @@ public class IDS extends SearchAlg implements Searchable<IDS.Node> {
         } else if (current.level < maxLevel && !current.givenChildren) {
             current.givenChildren = true;
             //checks for when node is next to borders
+            //up
+            if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
+                makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
+            }
+            //left
             if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
                 makeSwitches(new Node(), current, agentPos - 1, agentPos);
             }
-            if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
-                makeSwitches(new Node(), current, agentPos + 1, agentPos);
-            }
+            //down
             if (agentPos < (boardArea - lengthAcross) && noObstacle(agentPos + lengthAcross)) {
                 makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
             }
-            if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
-                makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
+            //right
+            if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+                makeSwitches(new Node(), current, agentPos + 1, agentPos);
             }
         }
 

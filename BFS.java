@@ -62,6 +62,15 @@ public class BFS extends SearchAlg implements Searchable<BFS.Node> {
         int agentPos = current.agent.getCurrPos();
 
         //is next to wall check or obstacle
+        //up
+        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
+            current.up = new Node();
+            makeSwitches(current.up, current, agentPos - lengthAcross, agentPos);
+            if (checkSolution(current.up))
+                return;
+            queue.add(current.up);
+        }
+        //left
         if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
             current.left = new Node();
             makeSwitches(current.left, current, agentPos - 1, agentPos);
@@ -69,13 +78,7 @@ public class BFS extends SearchAlg implements Searchable<BFS.Node> {
                 return;
             queue.add(current.left);
         }
-        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
-            current.right = new Node();
-            makeSwitches(current.right, current, agentPos + 1, agentPos);
-            if (checkSolution(current.right))
-                return;
-            queue.add(current.right);
-        }
+        //down
         if (agentPos < (area - lengthAcross) && noObstacle(agentPos + lengthAcross)) {
             current.down = new Node();
             makeSwitches(current.down, current, agentPos + lengthAcross, agentPos);
@@ -83,12 +86,13 @@ public class BFS extends SearchAlg implements Searchable<BFS.Node> {
                 return;
             queue.add(current.down);
         }
-        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
-            current.up = new Node();
-            makeSwitches(current.up, current, agentPos - lengthAcross, agentPos);
-            if (checkSolution(current.up))
+        //right
+        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
+            current.right = new Node();
+            makeSwitches(current.right, current, agentPos + 1, agentPos);
+            if (checkSolution(current.right))
                 return;
-            queue.add(current.up);
+            queue.add(current.right);
         }
     }
 

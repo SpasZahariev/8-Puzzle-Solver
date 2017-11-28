@@ -29,24 +29,28 @@ public class BoardFrame extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
 
+        Color bgColor = new Color(100,130,100);
         setLayout(new BorderLayout());
         gridContainer = new JPanel();
-        gridContainer.setBackground(new Color(70, 90, 70));
+        gridContainer.setBackground(new Color(70,90,70));
         JPanel optionContainer = new JPanel();
         optionContainer.setLayout(new BoxLayout(optionContainer, BoxLayout.Y_AXIS));
+        optionContainer.setBackground(bgColor);
 
         //input board size
         JPanel boardSizePanel = new JPanel();
+        boardSizePanel.setBackground(bgColor);
         boardSizePanel.add(new JLabel("N*N Board rows:"));
         JTextField sizeField = new JTextField(3);
         boardSizePanel.add(sizeField);
-        Button inputSize = new Button("Set!");
+        Button inputSize = new Button("Set/Reset!");
         inputSize.addActionListener(e -> visualizeBoard(sizeField));
         boardSizePanel.add(inputSize);
         optionContainer.add(boardSizePanel);
 
         //input buttons for adding agent
         JPanel agentPositionPanel = new JPanel();
+        agentPositionPanel.setBackground(bgColor);
         agentPositionPanel.add(new JLabel("Agent Start Position:"));
         agentStartPos = new JTextField(3);
         agentPositionPanel.add(agentStartPos);
@@ -58,9 +62,12 @@ public class BoardFrame extends JFrame {
 
         //input buttons for adding blocks and their goal positions
         JPanel blockAddingPanel = new JPanel();
+        blockAddingPanel.setBackground(bgColor);
         JPanel miniPanel = new JPanel(new GridLayout(2, 1));
         JPanel resize1 = new JPanel(new BorderLayout());
         JPanel resize2 = new JPanel(new BorderLayout());
+        resize1.setBackground(bgColor);
+        resize2.setBackground(bgColor);
         resize1.add(new JLabel("Block Start Position: "), BorderLayout.CENTER);
         JTextField blockStartPos = new JTextField(3);
         resize1.add(blockStartPos, BorderLayout.EAST);
@@ -78,6 +85,7 @@ public class BoardFrame extends JFrame {
 
         //input buttons for adding obstacles
         JPanel obstaclePanel = new JPanel();
+        obstaclePanel.setBackground(bgColor);
         obstaclePanel.add(new JLabel("Obstacle Position:"));
         JTextField obstaclePos = new JTextField(3);
         obstaclePanel.add(obstaclePos);
@@ -89,12 +97,14 @@ public class BoardFrame extends JFrame {
 
         //text fields to display solution depth and nodes expanded
         JPanel depthPanel = new JPanel();
+        depthPanel.setBackground(bgColor);
         depthPanel.add(new JLabel("Solution Depth:"));
         solutionDepth = new JTextField("No Answer");
         solutionDepth.setEditable(false);
         depthPanel.add(solutionDepth);
         optionContainer.add(depthPanel);
         JPanel nodesPanel = new JPanel();
+        nodesPanel.setBackground(bgColor);
         nodesPanel.add(new JLabel("Nodes Expanded:"));
         nodesPassed = new JTextField("No Answer");
         nodesPassed.setEditable(false);
@@ -104,6 +114,7 @@ public class BoardFrame extends JFrame {
         //solution algorithm selector and start button
         String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star", "Graph Search A*" , "Graph BFS"};
         JPanel solutionPanel = new JPanel();
+        solutionPanel.setBackground(bgColor);
         JComboBox<String> typePicker = new JComboBox<>(searchTypes);
         solutionPanel.add(typePicker);
         inputStartSolution = new Button("Find Solution");
@@ -330,6 +341,13 @@ public class BoardFrame extends JFrame {
             chosenAlg.startSearch();
             //get optimal path to solution
             solutionRoute = chosenAlg.getSolutionRoute();
+            for(Integer[] positions : solutionRoute) {
+                System.out.println("Agent: " + positions[0]);
+                for (int j = 1; j < positions.length; j++) {
+                    System.out.println("Block(" + j + "): " + positions[j]);
+                }
+                System.out.println("\n");
+            }
             obstacles = chosenAlg.getObstacles();
 
             Integer[] startState = solutionRoute.peek();

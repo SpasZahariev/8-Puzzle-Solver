@@ -71,6 +71,16 @@ public class GraphBFS extends SearchAlg implements Searchable<GraphBFS.Node> {
 
         //is next to wall check or obstacle
         //if expanding in this direction will get me in the parent node's position, skip it
+        //up
+        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross) && !current.parentUp) {
+            current.up = new Node();
+            current.up.parentDown = true;
+            makeSwitches(current.up, current, agentPos - lengthAcross, agentPos);
+            if (checkSolution(current.up))
+                return;
+            queue.add(current.up);
+        }
+        //left
         if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1) && !current.parentLeft) {
             current.left = new Node();
             current.left.parentRight = true;
@@ -79,14 +89,7 @@ public class GraphBFS extends SearchAlg implements Searchable<GraphBFS.Node> {
                 return;
             queue.add(current.left);
         }
-        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1) && !current.parentRight) {
-            current.right = new Node();
-            current.right.parentLeft = true;
-            makeSwitches(current.right, current, agentPos + 1, agentPos);
-            if (checkSolution(current.right))
-                return;
-            queue.add(current.right);
-        }
+        //down
         if (agentPos < (area - lengthAcross) && noObstacle(agentPos + lengthAcross) && !current.parentDown) {
             current.down = new Node();
             current.down.parentUp = true;
@@ -95,13 +98,14 @@ public class GraphBFS extends SearchAlg implements Searchable<GraphBFS.Node> {
                 return;
             queue.add(current.down);
         }
-        if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross) && !current.parentUp) {
-            current.up = new Node();
-            current.up.parentDown = true;
-            makeSwitches(current.up, current, agentPos - lengthAcross, agentPos);
-            if (checkSolution(current.up))
+        //right
+        if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1) && !current.parentRight) {
+            current.right = new Node();
+            current.right.parentLeft = true;
+            makeSwitches(current.right, current, agentPos + 1, agentPos);
+            if (checkSolution(current.right))
                 return;
-            queue.add(current.up);
+            queue.add(current.right);
         }
     }
 
