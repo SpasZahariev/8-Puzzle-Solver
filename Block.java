@@ -3,11 +3,13 @@ public class Block {
     private int currPos;
     private int goalPos;
 
+    //this constructor is called for making obstacles and agents
     //agent does not need a goal state
     public Block(int startPos) {
         currPos = startPos;
     }
 
+    //constructor for making a movable block
     public Block(int currPos, int goalPos) {
         this.currPos = currPos;
         this.goalPos = goalPos;
@@ -17,16 +19,7 @@ public class Block {
         return currPos;
     }
 
-    public void setCurrPos(int currPos) {
-        this.currPos = currPos;
-    }
-
     public int getGoalPos() {
         return goalPos;
-    }
-
-    //todo may be useless
-    public void setGoalPos(int goalPos) {
-        this.goalPos = goalPos;
     }
 }

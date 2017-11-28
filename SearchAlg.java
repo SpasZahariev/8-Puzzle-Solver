@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 
+//parent class for all search algorithms
 public abstract class SearchAlg {
 
     private HashSet<Integer> obstacles;
@@ -15,7 +16,7 @@ public abstract class SearchAlg {
 
     private Stack<Integer[]> solutionRoute;
 
-    public SearchAlg (HashSet<Integer> obstacles) {
+    public SearchAlg(HashSet<Integer> obstacles) {
         this.obstacles = obstacles;
         solutionRoute = new Stack<>();
     }
@@ -34,14 +35,15 @@ public abstract class SearchAlg {
         return obstacles;
     }
 
-    //records the optimal route to the solution
+    //records the route to the solution
     protected void traceRouteFrom(BasicNode node) {
         //number of blocks + agent is the same throughout the whole solution
         int numberOfMovables = node.towerBlocks.size() + 1;
 
         //the first iteration is not a movement of the agent so -1 to compensate
+        //(it is just the start configuration before the agent has started moving)
         solutionDepth = -1;
-        while(node != null) {
+        while (node != null) {
             Integer[] posOnBoard = new Integer[numberOfMovables];
             posOnBoard[0] = node.agent.getCurrPos();
             int k = 1;
@@ -61,16 +63,18 @@ public abstract class SearchAlg {
     protected abstract void startSearch();
 
     //check for collision if there is an obstacle in the way
-    protected boolean noObstacle (int futurePos) {
+    protected boolean noObstacle(int futurePos) {
         return !obstacles.contains(futurePos);
     }
 
-    protected void setTextFields (JTextField nodesPassedRef, JTextField solutionDepthRef) {
+    //references to the GUI text fields, so we can write answers on them later
+    protected void setTextFields(JTextField nodesPassedRef, JTextField solutionDepthRef) {
         passedTextField = nodesPassedRef;
         depthTextField = solutionDepthRef;
     }
 
-    private void updateTextFields (String nodesPassed, String solutionDepth) {
+    //writes the output to the text fields
+    private void updateTextFields(String nodesPassed, String solutionDepth) {
         passedTextField.setText(nodesPassed);
         depthTextField.setText(solutionDepth);
     }

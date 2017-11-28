@@ -1,42 +1,22 @@
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.PriorityQueue;
 
-public class AStar extends SearchAlg implements Searchable<AStar.Node>{
+public class AStar extends SearchAlg implements Searchable<AStar.Node> {
 
     private Node root;
     private static int lengthAcross;
     private static int area;
     private static PriorityQueue<Node> openList;
-//    private static HashSet<Integer> obstacles;
-    //private static ArrayList<Node> closedList;
-//    private static long nodesPassed;
-//    private static int solutionDepth;
-
     private static boolean isSolution;
 
     protected class Node extends BasicNode {
-
-//        private Block agent;
-//        private Node parent;
         private int moveCost;
         private int manhattan;
-        //private int weight;
-//        private ArrayList<Block> towerBlocks;
-        //private ArrayList<Node> children;
 
         public Node() {
-//            this.agent = agent;
             towerBlocks = new ArrayList<>();
-            //children = new ArrayList<>(2);
         }
-
-        /*private Node(Node parent) {
-            this.parent = parent;
-            towerBlocks = new ArrayList<>(3);
-            //children = new ArrayList<>(4);
-        }*/
 
         private int getWeight() {
             return moveCost + manhattan;
@@ -44,6 +24,7 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
     }
 
 
+    //class to help with prioritising promising nodes
     private class WeightComparator implements Comparator<Node> {
         @Override
         public int compare(Node x, Node y) {
@@ -64,23 +45,13 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
         root.towerBlocks = newBoard.getBlocks();
         lengthAcross = newBoard.getLengthAcross();
         area = lengthAcross * lengthAcross;
-//        super.obstacles = newBoard.getObstacles();
-
         openList = new PriorityQueue<>(new WeightComparator());
-        //closedList = new ArrayList<>();
-
         nodesPassed = 0;
         isSolution = false;
     }
 
-    /*public AStar(Block rootAgent) {
-        root = new Node(rootAgent);
-        openList = new PriorityQueue<>(new WeightComparator());
-        closedList = new ArrayList<>();
-        nodesPassed = 0;
-        isSolution = false;
-    }*/
-
+    //adds nodes to pen list and expands to most promising one of them
+    //when solution found calls printing function
     public void startSearch() {
         root.moveCost = 0;
         root.manhattan = heuristicSum(root.towerBlocks);
@@ -89,6 +60,7 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
         while (!openList.isEmpty() && !isSolution) {
             doAStar(openList.poll());
         }
+        //when solution is found get the final node and trace it back to the start
         BasicNode goal = null;
         for (Node i : openList) {
             if (i.manhattan == 0) {
@@ -97,44 +69,30 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
             }
         }
         traceRouteFrom(goal);
-        //TODO cleanup code below traceRoute
-        //printing solution
-//        System.out.println("nodes Passed: " + nodesPassed);
-        printAnswer(goal);
-//        int count = 0;
-        while (goal.parent != null) {
-            printAnswer(goal.parent);
-            goal = goal.parent;
-//            count++;
-        }
-//        solutionDepth = count;
-//        updateTextFields(String.valueOf(nodesPassed), String.valueOf(solutionDepth));
-//        System.err.println("SOLUTION DEPTH: " + solutionDepth);
     }
 
+    //checks possible Adjacent movements from current position of agent
     private void doAStar(Node current) {
         nodesPassed++;
-
         int agentPos = current.agent.getCurrPos();
 
         //checks for when agent is next to borders
-        //prevents moving out of the bounds of the board
+        //prevents moving out of the bounds of the board or into obstacles
         if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
             makeSwitches(new Node(), current, agentPos - 1, agentPos);
         }
         if (agentPos % lengthAcross != (lengthAcross - 1) && noObstacle(agentPos + 1)) {
             makeSwitches(new Node(), current, agentPos + 1, agentPos);
         }
-        if (agentPos < (area - lengthAcross ) && noObstacle(agentPos + lengthAcross)) {
+        if (agentPos < (area - lengthAcross) && noObstacle(agentPos + lengthAcross)) {
             makeSwitches(new Node(), current, agentPos + lengthAcross, agentPos);
         }
         if (agentPos > (lengthAcross - 1) && noObstacle(agentPos - lengthAcross)) {
             makeSwitches(new Node(), current, agentPos - lengthAcross, agentPos);
         }
-        //closedList.add(current);
     }
 
-    //manhattan distance for all blocks
+    //manhattan distance for all movable Blocks
     private int heuristicSum(ArrayList<Block> blocks) {
         int sum = 0;
         for (Block i : blocks)
@@ -142,8 +100,7 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
         return sum;
     }
 
-    //todo wtf is going on in here
-    //TODO say we can use a BETTER heuristic
+    //returns manhattan distance of one block
     private int calcManhattan(int current, int goal) {
         if (current == goal) {
             return 0;
@@ -162,17 +119,14 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
             return steps + Math.abs(current - goal);
         }
     }
-    //TODO CODE BELOW THIS "todo" is copied...Think about it
 
-    //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)
-    /*public void insertBlock(Block newBlock) {
-        root.towerBlocks.add(newBlock);
-    }*/
-
+    //of manhattan distance for all movable blocks is 0 then they are at their goal positions
     public boolean checkSolution(Node current) {
         return current.manhattan == 0;
     }
 
+    //handles scenario when agent swaps with a block
+    //only recalculates Manhattan distance when a block has been moved
     public void makeSwitches(Node child, Node parent, int futureAgentPos, int currentAgentPos) {
         if (isSolution)
             return;
@@ -189,32 +143,25 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
                 child.towerBlocks.add(new Block(i.getCurrPos(), i.getGoalPos()));
             }
         }
-
-        //todo check if runs properly
-        if(recalculate) {
-            //child.manhattan = parent.manhattan + 1;
+        if (recalculate) {
             child.manhattan = heuristicSum(child.towerBlocks);
         } else {
             child.manhattan = parent.manhattan;
         }
-        //System.out.println("child manhattan " + child.manhattan);
-        if(checkSolution(child)) {
-            //child.towerBlocks.forEach(i -> System.err.println("ha? " + i.getCurrPos()));
-            //System.out.println("Manhat dist: " + heuristicSum(child.towerBlocks));
+        if (checkSolution(child)) {
             isSolution = true;
             openList.add(child);
             return;
         }
 
-        //parent.children.add(child);
-        if (isBestValue(child,openList) /*&& isBestValue(child,closedList)*/)
+        if (isBestValue(child, openList))
             openList.add(child);
     }
 
     //if the same node exists in the open or closed list WITH a better weight, skip this one
     //we can search the same point a few times but only if it is more promising than the last time
     //check if node position is already in openList or closedList with a smaller weight
-    private boolean isBestValue (Node newNode, Iterable<Node> list) {
+    private boolean isBestValue(Node newNode, Iterable<Node> list) {
         for (Node i : list) {
             if (sameBlockPositions(newNode, i) && newNode.getWeight() > i.getWeight())
                 return false;
@@ -223,7 +170,8 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
     }
 
     //check if agents and blocks are in same places in both nodes
-    private boolean sameBlockPositions (Node nodeA, Node nodeB) {
+    //if yes the board configuration in both nodes is the same
+    private boolean sameBlockPositions(Node nodeA, Node nodeB) {
         if (nodeA.agent.getCurrPos() == nodeB.agent.getCurrPos()) {
             for (Block i : nodeA.towerBlocks) {
                 boolean hasBlock = false;
@@ -233,22 +181,11 @@ public class AStar extends SearchAlg implements Searchable<AStar.Node>{
                         break;
                     }
                 }
-                if(!hasBlock)
+                if (!hasBlock)
                     return false;
             }
             return true;
         }
         return false;
-    }
-
-    private void printAnswer (BasicNode state) {
-        System.out.println("------------------------------");
-        for (Block i : state.towerBlocks){
-            System.out.println("Block Position: " + i.getCurrPos());
-        }
-        System.out.print("  AGENT: " + state.agent.getCurrPos() + "\n");
-//        System.out.println("Heuristic: " + state.manhattan);
-        //state.towerBlocks.forEach(i -> System.out.println("Block Position: " + i.getCurrPos() + " Goal Pos??? " + i.getGoalPos()));
-        System.out.println("------------------------------");
     }
 }

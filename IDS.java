@@ -1,30 +1,21 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Stack;
 
-public class IDS extends SearchAlg implements Searchable<IDS.Node>{
+//class for iterative deepening search
+public class IDS extends SearchAlg implements Searchable<IDS.Node> {
 
-    //TODO should i try to make global vars as few as possible?
     private static Node root;
     private static Stack<Node> stack;
     private static int maxLevel;
-
     private static int lengthAcross;
     private static int boardArea;
-//    private static HashSet<Integer> obstacles;
-//    private static long nodesPassed;
-
     private static boolean isSolution;
 
-    protected class Node extends BasicNode{
+    protected class Node extends BasicNode {
 
-//        private Block agent;
         private long level;
-//        private ArrayList<Block> towerBlocks;
         private Stack<Node> children;
         private boolean givenChildren;
-//        private Node parent;
-        
 
         public Node() {
             towerBlocks = new ArrayList<>();
@@ -32,36 +23,20 @@ public class IDS extends SearchAlg implements Searchable<IDS.Node>{
         }
     }
 
-    /*public IDS(Block rootAgent) {
-        root = new Node();
-        root.agent = rootAgent;
-        stack = new Stack<>();
-        root.level = 0;
-        nodesPassed = 0;
-    }*/
-
     public IDS(PuzzleBoard newBoard) {
         super(newBoard.getObstacles());
         root = new Node();
         root.agent = newBoard.getAgent();
         root.towerBlocks = newBoard.getBlocks();
         root.level = 0;
-
-
         stack = new Stack<>();
         nodesPassed = 0;
-//        super.obstacles = newBoard.getObstacles();
         lengthAcross = newBoard.getLengthAcross();
         boardArea = lengthAcross * lengthAcross;
         isSolution = false;
     }
 
-    //to add BlockA, BlockB, BlockC (can add blocks at same position but irrelevant right now)
-    /*public void insertBlock(Block newBlock) {
-        root.towerBlocks.add(newBlock);
-    }*/
-
-
+    //when all movable blocks are in their goal position => solution
     public boolean checkSolution(Node current) {
         for (Block i : current.towerBlocks) {
             if (i.getCurrPos() != i.getGoalPos()) {
@@ -71,52 +46,42 @@ public class IDS extends SearchAlg implements Searchable<IDS.Node>{
         return true;
     }
 
-    //todo iteration
+    //does DFS up to a max level. Max level increases.
+    //this is repeated until a solution is found
+    //it is like DFS on a tree where all nodes on "max level" are leaf nodes
     public void startSearch() {
         maxLevel = 1;
         stack.add(root);
         while (!isSolution) {
             doIDS(stack.peek());
-
             if (stack.empty()) {
                 root.givenChildren = false;
                 stack.add(root);
                 maxLevel++;
-                //System.out.println("Max Level: " + maxLevel);
             }
         }
     }
 
-    //self explanatory
+    //adds a node to the stack. This node has a stack of children.
+    //expands one child following the same rule. (pop's it from Node's stack)
+    //if a node does not have any children left, pop it from the stack
     private void doIDS(Node current) {
         nodesPassed++;
-        //System.out.println(current.agent.getCurrPos());
-        //method called on empty stack;
-        //todo might not need this
-//        if(current == null)
-//            return;
 
-        //if current has been given children than it has gone through this check before
+        //if current has been given children then it has gone through this check before
         if (!current.givenChildren && checkSolution(current)) {
-            System.out.println("IDS completed!" + "\nNodesPassed: " + nodesPassed);
             isSolution = true;
-            //TODO cleanUp code after trace route
             traceRouteFrom(current);
-            //<3 lambda
-            /*while (current != null) {
-                current.towerBlocks.forEach(i -> System.out.println("Final Position: " + i.getCurrPos()));
-                System.out.println("   Agent: " + current.agent.getCurrPos() + "\n");
-                current = current.parent;
-            }*/
             return;
         }
 
         int agentPos = current.agent.getCurrPos();
 
+        //if a node is at the max level it can not be expanded; it is not given children
         if (current.level == maxLevel) {
             stack.pop();
             return;
-        } else if(current.level < maxLevel && !current.givenChildren) {
+        } else if (current.level < maxLevel && !current.givenChildren) {
             current.givenChildren = true;
             //checks for when node is next to borders
             if (agentPos % lengthAcross != 0 && noObstacle(agentPos - 1)) {
@@ -134,16 +99,12 @@ public class IDS extends SearchAlg implements Searchable<IDS.Node>{
         }
 
         //all of this node's children have been looked at
-        if(current.children.isEmpty()/* && current.givenChildren*/) {
+        if (current.children.isEmpty()/* && current.givenChildren*/) {
             stack.pop();
-            //doIDS(stack.peek());
             return;
         }
-
-        //Collections.shuffle(current.children);
         Node next = current.children.pop();
         next.level = current.level + 1;
-        //add one random child -> add one of its children -
         stack.add(next);
     }
 
@@ -154,7 +115,6 @@ public class IDS extends SearchAlg implements Searchable<IDS.Node>{
 
         for (Block i : parent.towerBlocks) {
             if (i.getCurrPos() == futureAgentPos) {
-                //System.out.println("bug check: agent " + currentAgentPos + " moved to " + futureAgentPos);
                 child.towerBlocks.add(new Block(currentAgentPos, i.getGoalPos()));
             } else {
                 child.towerBlocks.add(new Block(i.getCurrPos(), i.getGoalPos()));

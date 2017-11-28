@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Stack;
 
 public class BoardFrame extends JFrame {
@@ -26,17 +25,17 @@ public class BoardFrame extends JFrame {
     public BoardFrame() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack(); //makes all contents of frame at their preferred size
-        setSize(1280,920);//16:9 resolution
+        setSize(1280, 920);//16:9 resolution
         setLocationRelativeTo(null);
         setResizable(false);
 
         setLayout(new BorderLayout());
         gridContainer = new JPanel();
-        gridContainer.setBackground(new Color(70,90,70));
-        //gridContainer.setBackground(Color.CYAN);
+        gridContainer.setBackground(new Color(70, 90, 70));
         JPanel optionContainer = new JPanel();
         optionContainer.setLayout(new BoxLayout(optionContainer, BoxLayout.Y_AXIS));
 
+        //input board size
         JPanel boardSizePanel = new JPanel();
         boardSizePanel.add(new JLabel("N*N Board rows:"));
         JTextField sizeField = new JTextField(3);
@@ -46,6 +45,7 @@ public class BoardFrame extends JFrame {
         boardSizePanel.add(inputSize);
         optionContainer.add(boardSizePanel);
 
+        //input buttons for adding agent
         JPanel agentPositionPanel = new JPanel();
         agentPositionPanel.add(new JLabel("Agent Start Position:"));
         agentStartPos = new JTextField(3);
@@ -56,8 +56,9 @@ public class BoardFrame extends JFrame {
         agentPositionPanel.add(inputAgentPos);
         optionContainer.add(agentPositionPanel);
 
+        //input buttons for adding blocks and their goal positions
         JPanel blockAddingPanel = new JPanel();
-        JPanel miniPanel = new JPanel(new GridLayout(2,1));
+        JPanel miniPanel = new JPanel(new GridLayout(2, 1));
         JPanel resize1 = new JPanel(new BorderLayout());
         JPanel resize2 = new JPanel(new BorderLayout());
         resize1.add(new JLabel("Block Start Position: "), BorderLayout.CENTER);
@@ -75,18 +76,18 @@ public class BoardFrame extends JFrame {
         blockAddingPanel.add(inputBlock);
         optionContainer.add(blockAddingPanel);
 
-
+        //input buttons for adding obstacles
         JPanel obstaclePanel = new JPanel();
         obstaclePanel.add(new JLabel("Obstacle Position:"));
         JTextField obstaclePos = new JTextField(3);
         obstaclePanel.add(obstaclePos);
-        inputObstacle = new Button ("Add");
+        inputObstacle = new Button("Add");
         inputObstacle.setEnabled(false);
         inputObstacle.addActionListener(e -> colorObstacle(obstaclePos));
         obstaclePanel.add(inputObstacle);
         optionContainer.add(obstaclePanel);
 
-
+        //text fields to display solution depth and nodes expanded
         JPanel depthPanel = new JPanel();
         depthPanel.add(new JLabel("Solution Depth:"));
         solutionDepth = new JTextField("No Answer");
@@ -100,7 +101,8 @@ public class BoardFrame extends JFrame {
         nodesPanel.add(nodesPassed);
         optionContainer.add(nodesPanel);
 
-        String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star", "Graph Search A*"};
+        //solution algorithm selector and start button
+        String[] searchTypes = {"Breadth-First", "Depth-First", "Iterative Deepening", "A Star", "Graph Search A*" , "Graph BFS"};
         JPanel solutionPanel = new JPanel();
         JComboBox<String> typePicker = new JComboBox<>(searchTypes);
         solutionPanel.add(typePicker);
@@ -110,16 +112,14 @@ public class BoardFrame extends JFrame {
         solutionPanel.add(inputStartSolution);
         optionContainer.add(solutionPanel);
 
-        add(gridContainer,BorderLayout.CENTER);
-        add(optionContainer,BorderLayout.EAST);
+        add(gridContainer, BorderLayout.CENTER);
+        add(optionContainer, BorderLayout.EAST);
         setVisible(true);
     }
 
-    public void setUp() {
-
-    }
-
-    private void clearBoard(){
+    //when board size is changed
+    //removes all JPanels and tiles
+    private void clearBoard() {
         gridContainer.removeAll();
         agentAdded = false;
         blockAdded = false;
@@ -130,29 +130,31 @@ public class BoardFrame extends JFrame {
     }
 
     //done when a board size is specified
-    private void unlockButtons(){
+    private void unlockButtons() {
         inputAgentPos.setEnabled(true);
         inputBlock.setEnabled(true);
         inputObstacle.setEnabled(true);
     }
 
     //unlocks only when an agent and a movable block are present
-    private void unlockSolution(){
+    //unlocks button that starts the solution calculation
+    private void unlockSolution() {
         if (agentAdded && blockAdded)
             inputStartSolution.setEnabled(true);
     }
-    private void visualizeBoard(JTextField sizeField){
+
+    private void visualizeBoard(JTextField sizeField) {
         try {
             clearBoard();
             unlockButtons();
             int lengthAcross = Integer.parseInt(sizeField.getText());
             if (lengthAcross < 2)
                 throw new NumberFormatException();
-            gridContainer.setLayout(new GridLayout(lengthAcross,lengthAcross));
+            gridContainer.setLayout(new GridLayout(lengthAcross, lengthAcross));
             tiles = new JLabel[lengthAcross * lengthAcross];
             //could change font size to adjust better
-            Font verdana = new Font ("Verdana",1,2000 / tiles.length);
-            for (int i = 0; i < tiles.length;i ++) {
+            Font verdana = new Font("Verdana", 1, 2000 / tiles.length);
+            for (int i = 0; i < tiles.length; i++) {
                 tiles[i] = new JLabel(String.valueOf(i), SwingConstants.CENTER);
                 tiles[i].setOpaque(true);
                 //inversely proportional font size
@@ -167,6 +169,7 @@ public class BoardFrame extends JFrame {
         }
     }
 
+    //checks if input is ok and colors agent green
     private void colorAgentTile() {
         try {
             int agentPos = Integer.parseInt(agentStartPos.getText());
@@ -189,7 +192,8 @@ public class BoardFrame extends JFrame {
         }
     }
 
-    private void colorBlock(JTextField startText, JTextField goalText){
+    //checks if input is ok and colors the specified tile Black and gives the Goal grey borders
+    private void colorBlock(JTextField startText, JTextField goalText) {
         try {
             int startPos = Integer.parseInt(startText.getText());
             int goalPos = Integer.parseInt(goalText.getText());
@@ -212,7 +216,8 @@ public class BoardFrame extends JFrame {
         }
     }
 
-    private void colorObstacle (JTextField positionText) {
+    //checks if input is ok and colors the specified tile Red
+    private void colorObstacle(JTextField positionText) {
         try {
             int pos = Integer.parseInt(positionText.getText());
             if (pos < 0 || pos >= tiles.length)
@@ -237,21 +242,21 @@ public class BoardFrame extends JFrame {
                 return false;
         }
 
-            HashSet<Integer> obstacles = board.getObstacles();
+        HashSet<Integer> obstacles = board.getObstacles();
         //todo do I need to check for when obstacles.isEmpty
-            if (obstacles.contains(wantedPosition))
-                return false;
+        if (obstacles.contains(wantedPosition))
+            return false;
 
-            ArrayList<Block> blocks = board.getBlocks();
-            for (Block i : blocks) {
-                if (wantedPosition == i.getCurrPos() /*|| wantedPosition == i.getGoalPos()*/)
-                    return false;
-            }
+        ArrayList<Block> blocks = board.getBlocks();
+        for (Block i : blocks) {
+            if (wantedPosition == i.getCurrPos() /*|| wantedPosition == i.getGoalPos()*/)
+                return false;
+        }
 
         return true;
     }
 
-    //returns false if clashes with other goalStates or obstacles
+    //returns false if it detects clashes with other goalStates or obstacles
     //is position suitable for a goal state
     private boolean goalTileFree(int wantedPosition) {
         HashSet<Integer> obstacles = board.getObstacles();
@@ -260,16 +265,15 @@ public class BoardFrame extends JFrame {
 
         ArrayList<Block> blocks = board.getBlocks();
         for (Block i : blocks) {
-            if(wantedPosition == i.getGoalPos())
+            if (wantedPosition == i.getGoalPos())
                 return false;
         }
         return true;
     }
 
-    //todo comiting solution steps, nodesExpanded and solution depth
-    //starts the search algorithm
-    private void findSolution (String searchType) {
-        SearchAlg algorithm = null;
+    //starts the selected search algorithm
+    private void findSolution(String searchType) {
+        SearchAlg algorithm;
         switch (searchType) {
             case "Breadth-First":
                 algorithm = new BFS(board);
@@ -291,6 +295,10 @@ public class BoardFrame extends JFrame {
                 algorithm = new GraphAStar(board);
                 break;
 
+            case "Graph BFS":
+                algorithm = new GraphBFS(board);
+                break;
+
             default:
                 System.err.println("Invalid algorithm input. How did you manage to do that?");
                 return;
@@ -298,10 +306,11 @@ public class BoardFrame extends JFrame {
         }
         algorithm.setTextFields(nodesPassed, solutionDepth);
         PathWorker worker = new PathWorker(algorithm);
-        System.err.println("STARTEDDD");
+        System.out.println("!Working On Solution!");
         worker.execute();
     }
 
+    //separate thread to do the demanding solution calculation instead of the Event Dispatch Thread
     private class PathWorker extends SwingWorker<Void, Void> {
 
         private SearchAlg chosenAlg;
@@ -328,7 +337,7 @@ public class BoardFrame extends JFrame {
             int sleepTime = 20000 / solutionRoute.size();
             if (sleepTime > 1000)
                 sleepTime = 1000;
-            while(!solutionRoute.isEmpty()) {
+            while (!solutionRoute.isEmpty()) {
                 process();
                 Thread.sleep(sleepTime);
             }
@@ -339,17 +348,16 @@ public class BoardFrame extends JFrame {
             return null;
         }
 
-        //recolours the tiles to simulate the solution
+        //recolours the tiles to simulate the solution path
         //scheduled publications to the EDT that should not cause errors
-//        @Override
         protected void process() {
             Integer[] movableBlocks = solutionRoute.pop();
-            for(int i = 0; i < tiles.length; i++) {
+            for (int i = 0; i < tiles.length; i++) {
 
                 boolean match = false;
                 //check if tile is occupied by the moved agent
-                if(i == movableBlocks[0]) {
-                    tiles[i].setBackground(new Color(0,100,0));
+                if (i == movableBlocks[0]) {
+                    tiles[i].setBackground(new Color(0, 100, 0));
                     continue;
                 }
                 //check if tile is occupied by a block
@@ -362,11 +370,11 @@ public class BoardFrame extends JFrame {
                     }
                 }
                 //check if tile is occupied by an obstacle
-                if(obstacles.contains(i)) {
+                if (obstacles.contains(i)) {
                     tiles[i].setBackground(Color.red);
                     continue;
                 }
-                if(!match) {
+                if (!match) {
                     tiles[i].setBackground(Color.lightGray);
                     tiles[i].setForeground(Color.black);
                 }
