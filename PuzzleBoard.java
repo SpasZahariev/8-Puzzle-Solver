@@ -9,6 +9,11 @@ GUI --help
  Set obstacles: (optional) adds obstacles for the agent that can not be passed through. Any number of obstacles can be added
  Find solution: choose which algorithm you want to use to solve the problem.
                 Unlocks only when there is an agent on the board and at least one movable block
+
+ Green block => the agent
+ Black block => A,B,C... blocks that need to be moved to a goal position
+ Grey boarders => target position for a specific black block
+ Red blocks => obstacles that can not be moved
 */
 public class PuzzleBoard {
     private static int lengthAcross;

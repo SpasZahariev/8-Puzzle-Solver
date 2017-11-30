@@ -99,14 +99,14 @@ public class BoardFrame extends JFrame {
         JPanel depthPanel = new JPanel();
         depthPanel.setBackground(bgColor);
         depthPanel.add(new JLabel("Solution Depth:"));
-        solutionDepth = new JTextField("No Answer");
+        solutionDepth = new JTextField(5);
         solutionDepth.setEditable(false);
         depthPanel.add(solutionDepth);
         optionContainer.add(depthPanel);
         JPanel nodesPanel = new JPanel();
         nodesPanel.setBackground(bgColor);
         nodesPanel.add(new JLabel("Nodes Expanded:"));
-        nodesPassed = new JTextField("No Answer");
+        nodesPassed = new JTextField(8);
         nodesPassed.setEditable(false);
         nodesPanel.add(nodesPassed);
         optionContainer.add(nodesPanel);
@@ -317,7 +317,6 @@ public class BoardFrame extends JFrame {
         }
         algorithm.setTextFields(nodesPassed, solutionDepth);
         PathWorker worker = new PathWorker(algorithm);
-        System.out.println("!Working On Solution!");
         worker.execute();
     }
 
@@ -337,16 +336,19 @@ public class BoardFrame extends JFrame {
         //does the big calculation in another thread... not in the EDT!
         @Override
         protected Void doInBackground() throws Exception {
+            System.err.println("\n!Working On Solution!");
             //finds optimal path
             chosenAlg.startSearch();
             //get optimal path to solution
             solutionRoute = chosenAlg.getSolutionRoute();
-            for(Integer[] positions : solutionRoute) {
-                System.out.println("Agent: " + positions[0]);
+            //printing steps
+            Stack<Integer[]> clone = (Stack<Integer[]>) solutionRoute.clone();
+            while(!clone.isEmpty()) {
+                Integer[] positions = clone.pop();
+                System.out.print("\nAgent: " + positions[0]);
                 for (int j = 1; j < positions.length; j++) {
-                    System.out.println("Block(" + j + "): " + positions[j]);
+                    System.out.print("   Block(" + j + "): " + positions[j]);
                 }
-                System.out.println("\n");
             }
             obstacles = chosenAlg.getObstacles();
 
