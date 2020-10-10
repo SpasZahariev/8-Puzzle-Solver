@@ -23,7 +23,7 @@ javac PuzzleBoard.java
 java PuzzleBoard
 ```
 
-## Original Puzzle And Pictures
+## Original Puzzle And Pictures of the app
 
 <img src="./tile-swap-puzzle.jpg">
 <img src="./borad-with-obstacles.png">
