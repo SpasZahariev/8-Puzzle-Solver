@@ -9,7 +9,7 @@
 - The game board can be set to any NxN size
 - There is a twist! Users can place immovable red blocks that the algorithms have to work around. Caution: it is possible to make the puzzle impossible this way. 
 
-## Setup project locally
+## Technologies used
 - Java 8
 - Java FX
 
